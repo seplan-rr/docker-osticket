@@ -33,9 +33,9 @@ ENV OSTICKET_VERSION=${OSTICKET_VERSION:-"v1.18"} \
 ### Dependency Installation
 RUN source /assets/functions/00-container && \
     set -x && \
-    package update && \
-    package upgrade && \
-    package install  \
+    apt-get update && \
+    apt-get upgrade && \
+    apt-get install  \
                     git \
                     libldap-common \
                     openssl \
@@ -46,7 +46,7 @@ RUN source /assets/functions/00-container && \
                     && \
     \
 ### Download & Prepare OSTicket for Install
-    clone_git_repo "${OSTICKET_REPO_URL}" "${OSTICKET_VERSION}" /assets/install && \
+    git clone --branch "${OSTICKET_VERSION}" --depth 1 --recursive "${OSTICKET_REPO_URL}" /assets/install && \
     chown -R "${NGINX_USER}":"${NGINX_GROUP}" /assets/install && \
     chmod -R a+rX /assets/install/ && \
     chmod -R u+rw /assets/install/ && \
@@ -55,7 +55,7 @@ RUN source /assets/functions/00-container && \
     chmod 700 /assets/install/setup_hidden && \
     \
 # Setup Official Plugins
-    clone_git_repo "${OSTICKET_PLUGINS_REPO_URL}" "${OSTICKET_PLUGINS_VERSION}" /usr/src/plugins && \
+    git clone --branch "${OSTICKET_PLUGINS_VERSION}" --depth 1 --recursive "${OSTICKET_PLUGINS_REPO_URL}" /usr/src/plugins && \
     php make.php hydrate && \
     for plugin in $(find * -maxdepth 0 -type d ! -path doc ! -path lib); do cp -r ${plugin} /assets/install/include/plugins; done; \
     cp -R /usr/src/plugins/*.phar /assets/install/include/plugins/ && \
@@ -63,36 +63,36 @@ RUN source /assets/functions/00-container && \
     \
 # Add Community Plugins
     ## Archiver
-    clone_git_repo https://github.com/clonemeagain/osticket-plugin-archiver master /assets/install/include/plugins/archiver && \
+    git clone --branch master --depth 1 --recursive https://github.com/clonemeagain/osticket-plugin-archiver /assets/install/include/plugins/archiver && \
     ## Attachment Preview
-    clone_git_repo  https://github.com/clonemeagain/attachment_preview master /assets/install/include/plugins/attachment-preview && \
+    git clone --branch master --depth 1 --recursive https://github.com/clonemeagain/attachment_preview /assets/install/include/plugins/attachment-preview && \
     ## Auto Closer
-    clone_git_repo  https://github.com/clonemeagain/plugin-autocloser master /assets/install/include/plugins/auto-closer && \
+    git clone --branch master --depth 1 --recursive https://github.com/clonemeagain/plugin-autocloser /assets/install/include/plugins/auto-closer && \
     ## Fetch Note
-    clone_git_repo  https://github.com/bkonetzny/osticket-fetch-note master /assets/install/include/plugins/fetch-note && \
+    git clone --branch master --depth 1 --recursive https://github.com/bkonetzny/osticket-fetch-note /assets/install/include/plugins/fetch-note && \
     ## Field Radio Buttons
-    clone_git_repo  https://github.com/Micke1101/OSTicket-plugin-field-radiobuttons master /assets/install/include/plugins/field-radiobuttons && \
+    git clone --branch master --depth 1 --recursive https://github.com/Micke1101/OSTicket-plugin-field-radiobuttons /assets/install/include/plugins/field-radiobuttons && \
     ## Mentioner
-    clone_git_repo  https://github.com/clonemeagain/osticket-plugin-mentioner master /assets/install/include/plugins/mentioner && \
+    git clone --branch master --depth 1 --recursive https://github.com/clonemeagain/osticket-plugin-mentioner /assets/install/include/plugins/mentioner && \
     ## Multi LDAP Auth
-    clone_git_repo  https://github.com/philbertphotos/osticket-multildap-auth master /assets/install/include/plugins/multi-ldap && \
+    git clone --branch master --depth 1 --recursive https://github.com/philbertphotos/osticket-multildap-auth /assets/install/include/plugins/multi-ldap && \
     mv /assets/install/include/plugins/multi-ldap/multi-ldap/* /assets/install/include/plugins/multi-ldap/ && \
     rm -rf /assets/install/include/plugins/multi-ldap/multi-ldap && \
     ## Prevent Autoscroll
-    clone_git_repo  https://github.com/clonemeagain/osticket-plugin-preventautoscroll master /assets/install/include/plugins/prevent-autoscroll && \
+    git clone --branch master --depth 1 --recursive https://github.com/clonemeagain/osticket-plugin-preventautoscroll /assets/install/include/plugins/prevent-autoscroll && \
     ## Rewriter
-    clone_git_repo  https://github.com/clonemeagain/plugin-fwd-rewriter master /assets/install/include/plugins/rewriter && \
+    git clone --branch master --depth 1 --recursive https://github.com/clonemeagain/plugin-fwd-rewriter /assets/install/include/plugins/rewriter && \
     ## Slack
-    clone_git_repo  https://github.com/clonemeagain/osticket-slack master /assets/install/include/plugins/slack && \
+    git clone --branch master --depth 1 --recursive https://github.com/clonemeagain/osticket-slack /assets/install/include/plugins/slack && \
     ## Teams (Microsoft)
-    clone_git_repo  https://github.com/ipavlovi/osTicket-Microsoft-Teams-plugin master /assets/install/include/plugins/teams && \
+    git clone --branch master --depth 1 --recursive https://github.com/ipavlovi/osTicket-Microsoft-Teams-plugin /assets/install/include/plugins/teams && \
     \
     ### Log Miscellany Installation
     touch /var/log/msmtp.log && \
     chown "${NGINX_USER}":"${NGINX_GROUP}" /var/log/msmtp.log && \
    \
 ## Cleanup
-    package cleanup && \
+    apt-get cleanup && \
     rm -rf \
             /root/.composer \
             /tmp/* \
