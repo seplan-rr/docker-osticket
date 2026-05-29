@@ -31,8 +31,7 @@ ENV OSTICKET_VERSION=${OSTICKET_VERSION:-"v1.18"} \
     IMAGE_REPO_URL="https://github.com/tiredofit/docker-osticket/"
 
 ### Dependency Installation
-RUN source /assets/functions/00-container && \
-    set -x && \
+RUN set -x && \
     apt-get update && \
     apt-get upgrade && \
     apt-get install  \
