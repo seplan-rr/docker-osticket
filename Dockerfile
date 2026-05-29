@@ -32,17 +32,17 @@ ENV OSTICKET_VERSION=${OSTICKET_VERSION:-"v1.18"} \
 
 ### Dependency Installation
 RUN set -x && \
-    apt-get update && \
-    apt-get upgrade && \
-    apt-get install  \
-                    git \
-                    libldap-common \
-                    openssl \
-                    php${PHP_VERSION}-memcached \
-                    tar \
-                    wget \
-                    zlib1g \
-                    && \
+    apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install --no-install-recommends -y \
+        git \
+        libldap-common \
+        openssl \
+        php${PHP_VERSION}-memcached \
+        tar \
+        wget \
+        zlib1g \
+        && \
     \
 ### Download & Prepare OSTicket for Install
     git clone --branch "${OSTICKET_VERSION}" --depth 1 --recursive "${OSTICKET_REPO_URL}" /assets/install && \
@@ -55,6 +55,7 @@ RUN set -x && \
     \
 # Setup Official Plugins
     git clone --branch "${OSTICKET_PLUGINS_VERSION}" --depth 1 --recursive "${OSTICKET_PLUGINS_REPO_URL}" /usr/src/plugins && \
+    cd /usr/src/plugins && \
     php make.php hydrate && \
     for plugin in $(find * -maxdepth 0 -type d ! -path doc ! -path lib); do cp -r ${plugin} /assets/install/include/plugins; done; \
     cp -R /usr/src/plugins/*.phar /assets/install/include/plugins/ && \
@@ -91,10 +92,10 @@ RUN set -x && \
     chown "${NGINX_USER}":"${NGINX_GROUP}" /var/log/msmtp.log && \
    \
 ## Cleanup
-    apt-get cleanup && \
     rm -rf \
-            /root/.composer \
-            /tmp/* \
-            /usr/src/*
+        /var/lib/apt/lists/* \
+        /root/.composer \
+        /tmp/* \
+        /usr/src/*
 
 COPY install /
